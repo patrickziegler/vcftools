@@ -1,0 +1,14 @@
+services:
+  dev:
+    image: vcftools-dev
+    container_name: taped-dev
+    stdin_open: true
+    tty: true
+    environment:
+      TERM: xterm-256color
+      COLORTERM: truecolor
+    volumes:
+      - ~/.gemini:/root/.gemini
+      - .:/workspace
+    working_dir: /workspace
+    command: bash

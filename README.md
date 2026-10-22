@@ -16,3 +16,9 @@ bin/mergevcf a.vcf b.vcf ... > merged.vcf
 Tip: run `cleanvcf` on each file first, then `mergevcf` on the results.
 
 See [REQUIREMENTS.md](REQUIREMENTS.md) for the full specification.
+
+## Development
+
+```sh
+podman compose run --rm dev
+```
