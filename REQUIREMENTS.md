@@ -1,18 +1,18 @@
 # Requirements
 
-Go project (module `mergevcf`, Go 1.22) with two CLI tools sharing the `internal/vcf` library.
+Go project (module `mergevcf`, Go 1.22) with three CLI tools sharing the `internal/vcf` library.
 Input: `.vcf` stream with many vCards (versions 2.1 and 3.0 occur) via stdin. Results go to
 stdout; all diagnostics go to stderr so stdout can be redirected to a file.
 
 ## Layout
 
-- `cmd/mergevcf` – merge tool; `cmd/cleanvcf` – cleaning tool
+- `cmd/mergevcf` – merge tool; `cmd/cleanvcf` – cleaning tool; `cmd/showvcf` – CSV export tool
 - `internal/vcf` – the single shared library. Generic part (`card.go`,
   `parse.go`, `merge.go`): parse, write, merge, sort; never interprets or
   rewrites values. Cleaning part (`decode.go`, `clean.go`): UTF-8 /
   quoted-printable decoding, phone normalization, Apple-label handling,
   building clean cards; used by cleanvcf only, never by mergevcf.
-- `make build` -> `bin/mergevcf`, `bin/cleanvcf`; `make test` runs all tests
+- `make build` -> `bin/mergevcf`, `bin/cleanvcf`, `bin/showvcf`; `make test` runs all tests
 - Each tool has a testable `run(args, stdin, stdout, stderr) int`
 
 ## Parsing (shared)
@@ -60,6 +60,18 @@ stdout; all diagnostics go to stderr so stdout can be redirected to a file.
   and `X-` types are dropped; 2.1 bare params (`TEL;CELL`) become types.
 - Input order preserved. Cards with neither name nor phone are skipped
   (message on stderr).
+- stderr: `Total processed contacts: N` (counts all input cards).
+
+## showvcf
+
+`showvcf < input.vcf > contacts.csv` (reads from stdin, no flags, no positional arguments)
+
+- Reads contacts from stdin.
+- Outputs a CSV version of all contacts (using `;` as delimiter).
+- Columns of the generated CSV:
+  `last name; first name; phone number 1; phone number 2; ...; phone number N`
+- Output is sorted by last name; otherwise no modifications are done whatsoever
+  (raw names and phone numbers are preserved).
 - stderr: `Total processed contacts: N` (counts all input cards).
 
 ## Known gaps / ideas
