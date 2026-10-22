@@ -1,7 +1,7 @@
 # Requirements
 
 Go project (module `mergevcf`, Go 1.22) with two CLI tools sharing the `internal/vcf` library.
-Input: `.vcf` files with many vCards (versions 2.1 and 3.0 occur). Results go to
+Input: `.vcf` stream with many vCards (versions 2.1 and 3.0 occur) via stdin. Results go to
 stdout; all diagnostics go to stderr so stdout can be redirected to a file.
 
 ## Layout
@@ -13,7 +13,7 @@ stdout; all diagnostics go to stderr so stdout can be redirected to a file.
   quoted-printable decoding, phone normalization, Apple-label handling,
   building clean cards; used by cleanvcf only, never by mergevcf.
 - `make build` -> `bin/mergevcf`, `bin/cleanvcf`; `make test` runs all tests
-- Each tool has a testable `run(args, stdout, stderr) int`
+- Each tool has a testable `run(args, stdin, stdout, stderr) int`
 
 ## Parsing (shared)
 
@@ -27,8 +27,9 @@ stdout; all diagnostics go to stderr so stdout can be redirected to a file.
 
 ## mergevcf
 
-`mergevcf file1.vcf file2.vcf ... > merged.vcf` (no flags)
+`mergevcf < input.vcf > merged.vcf` (reads from stdin, no flags, no positional arguments)
 
+- Reads contacts from stdin.
 - Pure merge: cards are written back unmodified (raw lines, original
   `VERSION`, encodings, categories, ...). It does no decoding or phone
   normalization; for reliable duplicate matching run cleanvcf on the inputs first.
@@ -40,8 +41,9 @@ stdout; all diagnostics go to stderr so stdout can be redirected to a file.
 
 ## cleanvcf
 
-`cleanvcf [--prefix +49] input.vcf > output.vcf` (exactly one input file)
+`cleanvcf [--prefix +49] < input.vcf > output.vcf` (reads from stdin, no positional arguments)
 
+- Reads contacts from stdin.
 - Output is plain UTF-8 vCard 3.0 containing only `VERSION`, `FN`, `N`
   (`Family;Given;;;`) and `TEL`. Everything else (CATEGORIES, ORG, ...) is dropped.
 - Decoding: quoted-printable values (`ENCODING=QUOTED-PRINTABLE`, UTF-8

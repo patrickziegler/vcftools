@@ -1,4 +1,4 @@
-// Command cleanvcf rewrites a .vcf file as plain UTF-8 vCard 3.0 contacts
+// Command cleanvcf rewrites a .vcf stream from stdin as plain UTF-8 vCard 3.0 contacts
 // that only contain a name and normalized phone numbers.
 package main
 
@@ -12,12 +12,12 @@ import (
 	"vcftools/internal/vcf"
 )
 
-func run(args []string, stdout, stderr io.Writer) int {
+func run(args []string, stdin io.Reader, stdout, stderr io.Writer) int {
 	fs := flag.NewFlagSet("cleanvcf", flag.ContinueOnError)
 	fs.SetOutput(stderr)
 	prefix := fs.String("prefix", "+49", "country code prefix replacing a leading 0 in phone numbers")
 	fs.Usage = func() {
-		fmt.Fprintln(stderr, "usage: cleanvcf [--prefix +49] input.vcf > output.vcf")
+		fmt.Fprintln(stderr, "usage: cleanvcf [--prefix +49] < input.vcf > output.vcf")
 		fs.PrintDefaults()
 	}
 	if err := fs.Parse(args); err != nil {
@@ -26,20 +26,14 @@ func run(args []string, stdout, stderr io.Writer) int {
 		}
 		return 2
 	}
-	if fs.NArg() != 1 {
+	if fs.NArg() != 0 {
 		fs.Usage()
 		return 2
 	}
 
-	f, err := os.Open(fs.Arg(0))
+	cards, err := vcf.Parse(stdin)
 	if err != nil {
-		fmt.Fprintln(stderr, "error:", err)
-		return 1
-	}
-	defer f.Close()
-	cards, err := vcf.Parse(f)
-	if err != nil {
-		fmt.Fprintf(stderr, "error reading %s: %v\n", fs.Arg(0), err)
+		fmt.Fprintf(stderr, "error reading input: %v\n", err)
 		return 1
 	}
 
@@ -64,5 +58,5 @@ func run(args []string, stdout, stderr io.Writer) int {
 }
 
 func main() {
-	os.Exit(run(os.Args[1:], os.Stdout, os.Stderr))
+	os.Exit(run(os.Args[1:], os.Stdin, os.Stdout, os.Stderr))
 }
