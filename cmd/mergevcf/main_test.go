@@ -7,7 +7,7 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	card := "BEGIN:VCARD\nVERSION:3.0\nFN:Ahmed Kashef\nN:Kashef;Ahmed;;;\nTEL;TYPE=CELL:0176 811 23123\nCATEGORIES:myContacts\nEND:VCARD\n"
+	card := "BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nN:Doe;John;;;\nTEL;TYPE=CELL:0176 1234 5678\nCATEGORIES:myContacts\nEND:VCARD\n"
 	in := card + card
 
 	var out, errb bytes.Buffer

@@ -7,18 +7,18 @@ import (
 )
 
 func TestRun(t *testing.T) {
-	in := "BEGIN:VCARD\nVERSION:3.0\nFN:Patrick Ziegler\nN:Ziegler;Patrick;;;\nTEL;TYPE=CELL:0176 99999\nEND:VCARD\n" +
-		"BEGIN:VCARD\nVERSION:3.0\nFN:Ahmed Kashef\nN:Kashef;Ahmed;;;\nTEL;TYPE=CELL:0176 811 23123\nTEL;TYPE=WORK:+49 89 12345\nEND:VCARD\n" +
-		"BEGIN:VCARD\nVERSION:3.0\nFN:Thea Kummeth\nN:Kummeth;Thea;;;\nEND:VCARD\n"
+	in := "BEGIN:VCARD\nVERSION:3.0\nFN:Bob Taylor\nN:Taylor;Bob;;;\nTEL;TYPE=CELL:0176 99999\nEND:VCARD\n" +
+		"BEGIN:VCARD\nVERSION:3.0\nFN:John Doe\nN:Doe;John;;;\nTEL;TYPE=CELL:0176 1234 5678\nTEL;TYPE=WORK:+49 89 12345\nEND:VCARD\n" +
+		"BEGIN:VCARD\nVERSION:3.0\nFN:Jane Smith\nN:Smith;Jane;;;\nEND:VCARD\n"
 
 	var out, errb bytes.Buffer
 	if code := run(nil, strings.NewReader(in), &out, &errb); code != 0 {
 		t.Fatalf("exit %d: %s", code, errb.String())
 	}
 
-	want := "Kashef;Ahmed;0176 811 23123;+49 89 12345\n" +
-		"Kummeth;Thea\n" +
-		"Ziegler;Patrick;0176 99999\n"
+	want := "Doe;John;0176 1234 5678;+49 89 12345\n" +
+		"Smith;Jane\n" +
+		"Taylor;Bob;0176 99999\n"
 
 	if out.String() != want {
 		t.Errorf("stdout:\n%s\nwant:\n%s", out.String(), want)
